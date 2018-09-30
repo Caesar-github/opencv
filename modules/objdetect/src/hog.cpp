@@ -62,6 +62,7 @@ namespace cv
 {
 
 #define NTHREADS 256
+//#define NTHREADS 128
 
 enum {DESCR_FORMAT_COL_BY_COL, DESCR_FORMAT_ROW_BY_ROW};
 
@@ -1283,6 +1284,9 @@ static bool ocl_compute_gradients_8UC1(int height, int width, InputArray _img, f
 
     UMat img = _img.getUMat();
 
+    printf("\n\n rk_debug ------> %d \n\n ", NTHREADS);
+    printf("\n\n rk_debug ------> %d %d \n\n ", width, height);
+
     size_t localThreads[3] = { NTHREADS, 1, 1 };
     size_t globalThreads[3] = { (size_t)width, (size_t)height, 1 };
     char correctGamma = (correct_gamma) ? 1 : 0;
@@ -1463,6 +1467,7 @@ static bool ocl_extract_descrs_by_rows(int win_height, int win_width, int block_
 
     int descriptors_quadstep = (int)descriptors.step >> 2;
 
+    printf("\n\n rk_debug ------> %d %d %d \n\n ", img_win_width, NTHREADS, (size_t)img_win_width * NTHREADS);
     size_t globalThreads[3] = { (size_t)img_win_width * NTHREADS, (size_t)img_win_height, 1 };
     size_t localThreads[3] = { NTHREADS, 1, 1 };
 
@@ -1496,6 +1501,8 @@ static bool ocl_extract_descrs_by_cols(int win_height, int win_width, int block_
         block_stride_x;
 
     int descriptors_quadstep = (int)descriptors.step >> 2;
+
+    printf("\n\n rk_debug2 ------> %d %d %d \n\n ", img_win_width, NTHREADS, (size_t)img_win_width * NTHREADS);
 
     size_t globalThreads[3] = { (size_t)img_win_width * NTHREADS, (size_t)img_win_height, 1 };
     size_t localThreads[3] = { NTHREADS, 1, 1 };

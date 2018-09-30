@@ -1103,7 +1103,8 @@ static bool ocl_pyrDown( InputArray _src, OutputArray _dst, const Size& _dsz, in
     UMat dst = _dst.getUMat();
 
     int float_depth = depth == CV_64F ? CV_64F : CV_32F;
-    const int local_size = 256;
+    const int local_size = 128;//256;
+//    const int local_size = 256;
     int kercn = 1;
     if (depth == CV_8U && float_depth == CV_32F && cn == 1 && ocl::Device::getDefault().isIntel())
         kercn = 4;
@@ -1127,6 +1128,7 @@ static bool ocl_pyrDown( InputArray _src, OutputArray _dst, const Size& _dsz, in
 
     size_t localThreads[2]  = { (size_t)local_size/kercn, 1 };
     size_t globalThreads[2] = { ((size_t)src.cols + (kercn-1))/kercn, ((size_t)dst.rows + 1) / 2 };
+
     return k.run(2, globalThreads, localThreads, false);
 }
 

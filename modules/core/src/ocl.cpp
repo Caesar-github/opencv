@@ -854,6 +854,7 @@ bool haveOpenCL()
             {
                 g_isOpenCLAvailable = false;
                 g_isOpenCLInitialized = true;
+                return g_isOpenCLAvailable;
             }
         }
         CV_LOG_INFO(NULL, "Initialize OpenCL runtime...");
@@ -1209,6 +1210,8 @@ struct Device::Impl
         hostUnifiedMemory_ = getBoolProp(CL_DEVICE_HOST_UNIFIED_MEMORY);
         maxComputeUnits_ = getProp<cl_uint, int>(CL_DEVICE_MAX_COMPUTE_UNITS);
         maxWorkGroupSize_ = getProp<size_t, size_t>(CL_DEVICE_MAX_WORK_GROUP_SIZE);
+        maxWorkGroupSize_ = 128;
+        printf("\n\n djw --> maxWorkGroupSize_ : %d -------- \n\n", maxWorkGroupSize_);
         type_ = getProp<cl_device_type, int>(CL_DEVICE_TYPE);
         driverVersion_ = getStrProp(CL_DRIVER_VERSION);
         addressBits_ = getProp<cl_uint, int>(CL_DEVICE_ADDRESS_BITS);
@@ -1540,7 +1543,10 @@ int Device::maxSamplers() const
 { return p ? p->getProp<cl_uint, int>(CL_DEVICE_MAX_SAMPLERS) : 0; }
 
 size_t Device::maxWorkGroupSize() const
-{ return p ? p->maxWorkGroupSize_ : 0; }
+{
+  printf("rk_debug ---> maxWorkGroupSize:%d \n", p ? p->maxWorkGroupSize_ : 0);
+  return p ? p->maxWorkGroupSize_ : 0;
+}
 
 int Device::maxWorkItemDims() const
 { return p ? p->getProp<cl_uint, int>(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS) : 0; }
@@ -1553,6 +1559,7 @@ void Device::maxWorkItemSizes(size_t* sizes) const
         size_t retsz = 0;
         CV_OCL_DBG_CHECK(clGetDeviceInfo(p->handle, CL_DEVICE_MAX_WORK_ITEM_SIZES,
                 MAX_DIMS*sizeof(sizes[0]), &sizes[0], &retsz));
+        printf("rk_debug --> sizes:%d %d %d \n", sizes[0], sizes[1],sizes[2]);
     }
 }
 
@@ -3105,6 +3112,7 @@ bool Kernel::Impl::run(int dims, size_t globalsize[], size_t localsize[],
     cl_int retval = clEnqueueNDRangeKernel(qq, handle, (cl_uint)dims,
                                            NULL, globalsize, localsize, 0, 0,
                                            (sync && !timeNS) ? 0 : &asyncEvent);
+
 #if !CV_OPENCL_SHOW_RUN_KERNELS
     if (retval != CL_SUCCESS)
 #endif
